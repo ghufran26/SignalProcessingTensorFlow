@@ -13,11 +13,11 @@ import numpy as np
 
 import random
 #tf = tf.compat.v1
-no_classes     = 34
+no_classes     = # number of classes
 timesteps      = 12
-training_steps = 1500
+training_steps = # number of training steps
 batch_size     = 12
-data           = np.load('/tmp/124.npz')
+data           = np.load('dataset path')
 dataset        = data['a']
 ylabel         = data['b']
 feature_num    = len(dataset[1][:])
@@ -33,14 +33,14 @@ encoder.fit(ylabel)
 encoded_Y = encoder.transform(ylabel)
 
 
-# convert integers to dummy variables (i.e. one hot encoded)
+# one hot encoded
 
 
 ylabel = np_utils.to_categorical(encoded_Y)
 ylabel = np.int8(ylabel)
 import time
 start_time = time.time()
-##########################
+
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
@@ -49,9 +49,9 @@ dataset,ylabel= shuffle(dataset,ylabel)
 X_train, X_test, Y_train, Y_test = train_test_split(dataset, ylabel, test_size=0.20, random_state=42)
 
 X_valid, X_test, Y_valid, Y_test = train_test_split(X_test, Y_test, test_size=0.50, random_state=42)
-training_size = 2176
-testsize = 272
-valsize  = 272
+training_size = # training data set size
+testsize = # test data set size
+valsize  = # validation data set size
 xtrain   = X_train.reshape(training_size,timesteps,feature_num)
 ytrain   = Y_train.reshape(training_size,timesteps,no_classes)
 xtest    = X_test.reshape(testsize,timesteps,feature_num)
@@ -60,35 +60,23 @@ xval     = X_valid.reshape(valsize,timesteps,feature_num)
 yval     = Y_valid.reshape(valsize,timesteps,no_classes)
 epoch    = np.int(training_size/batch_size)
 # LSTM
-############################
 
 train_data = tf.data.Dataset.from_tensor_slices((xtrain, ytrain))
 train_data = train_data.repeat().shuffle(500).batch(batch_size).prefetch(1)
-
-### to do
-
-############################
 
 # Create LSTM Model.
 class LSTM(Model):
     # Set layers.
     def __init__(self):
         super(LSTM, self).__init__()
-        # Define a Masking Layer with -1 as mask.
-        # Define a LSTM layer to be applied over the Masking layer.
-        # Dynamic computation will automatically be performed to ignore -1 values.
-
+   
         self.lstm = layers.LSTM(units=128,return_sequences=True)
-        # Output fully connected layer (2 classes: linear or random seq).
-        self.out = layers.Dense(34,activation='softmax')
+
+        self.out = layers.Dense(no_classes,activation='softmax')
 
     # Set forward pass.
     def call(self, x, is_training=False):
-        # A RNN Layer expects a 3-dim input (batch_size, seq_len, num_features).
-        #x = tf.reshape(x, shape=[-1, 12, 1])
-        # Apply Masking layer.
-      #  x = self.masking(x)
-        # Apply LSTM layer.
+        
         x = self.lstm(x)
         # Apply output layer.
         x = self.out(x)
@@ -98,13 +86,7 @@ class LSTM(Model):
 # Build LSTM model.
 lstm_net = LSTM()
 
-
-# Cross-Entropy Loss.
-# Note that this will apply 'softmax' to the logits.
-
-
 def cross_entropy_loss(x, y):
-    # Convert labels to int 64 for tf cross-entropy function.
     x = tf.cast(x, tf.float32)
     y = tf.cast(y, tf.float32)
 
