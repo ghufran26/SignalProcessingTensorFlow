@@ -13,11 +13,11 @@ import numpy as np
 
 import random
 #tf = tf.compat.v1
-no_classes     = 34
+no_classes     = # number of classes 
 timesteps      = 12
-training_steps = 816 * 20
+training_steps = # number of training steps
 batch_size     = 32
-data           = np.load('/tmp/124.npz')
+data           = np.load('dataset path')
 dataset        = data['a']
 ylabel         = data['b']
 feature_num    = len(dataset[1][:])
@@ -33,7 +33,7 @@ encoder.fit(ylabel)
 encoded_Y = encoder.transform(ylabel)
 
 
-# convert integers to dummy variables (i.e. one hot encoded)
+# one hot encoded
 
 
 ylabel = np_utils.to_categorical(encoded_Y)
@@ -51,6 +51,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(dataset, ylabel, test_size=0
 X_valid, X_test, Y_valid, Y_test = train_test_split(X_test, Y_test, test_size=0.50, random_state=42)
 
 '''
+
 training_size = 2176
 testsize = 272
 valsize  = 272
@@ -61,82 +62,49 @@ ytest    = Y_test.reshape(testsize,timesteps,no_classes)
 xval     = X_valid.reshape(valsize,timesteps,feature_num)
 yval     = Y_valid.reshape(valsize,timesteps,no_classes)
 epoch    = np.int(training_size/batch_size)
+
 '''
-X_train  = X_train.reshape(X_train.shape[0], 501, 1).astype('float32')
-X_valid  = X_valid.reshape(X_valid.shape[0], 501, 1).astype('float32')
-testX    = X_test.reshape(X_test.shape[0], 501, 1).astype('float32')
+X_train  = X_train.reshape(X_train.shape[0], feature_num, 1).astype('float32')
+X_valid  = X_valid.reshape(X_valid.shape[0], feature_num, 1).astype('float32')
+testX    = X_test.reshape(X_test.shape[0], feature_num, 1).astype('float32')
 
-epoch    = 816 #np.int(/batch_size)
-
-# LSTM
-############################
+epoch    = 100
 
 train_data = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 train_data = train_data.repeat().shuffle(500).batch(batch_size).prefetch(1)
-
-### to do
-
-############################
 
 # Create LSTM Model.
 class OneDCNN(Model):
     # Set layers.
     def __init__(self):
         super(OneDCNN, self).__init__()
-        # Define a Masking Layer with -1 as mask.
-        # Define a LSTM layer to be applied over the Masking layer.
-        # Dynamic computation will automatically be performed to ignore -1 values.
-        self.cnn    = layers.Conv1D(filters=8, kernel_size=64,strides=12, input_shape=(501, 1))
+        
+        self.cnn    = layers.Conv1D(filters=8, kernel_size=64,strides=12, input_shape=(feature_num, 1))
         self.flater = layers.Flatten()
-        #self.lstm = layers.LSTM(units=128,return_sequences=True)
-        # Output fully connected layer (2 classes: linear or random seq).
-        self.out = layers.Dense(34,activation='softmax')
-
+        self.out = layers.Dense(no_classes,activation='softmax')
     # Set forward pass.
     def call(self, x, is_training=False):
-        # A RNN Layer expects a 3-dim input (batch_size, seq_len, num_features).
-        #x = tf.re
-        # GHUFRshape(x, shape=[-1, 12, 1])
-        # Apply Masking layer.
-      #  x = self.masking(x)
-        # Apply LSTM layer.
         x = self.cnn(x)
         x_flat = self.flater(x)
         # Apply output layer.
         x = self.out(x_flat)
-
         return x
 
-# Build LSTM model.
 cnn1d = OneDCNN()
 
-
 # Cross-Entropy Loss.
-# Note that this will apply 'softmax' to the logits.
-
 
 def cross_entropy_loss(x, y):
-    # Convert labels to int 64 for tf cross-entropy function.
+    #  cross-entropy function.
     x = tf.cast(x, tf.float32)
     y = tf.cast(y, tf.float32)
 
     ypred = tf.clip_by_value(x, 1e-9, 1.)
-
     return tf.reduce_mean(-tf.reduce_sum(y * tf.math.log(ypred)))
 
 # Accuracy metric.
 def accuracy(y_pred, y_true):
-    # Predicted class is the index of highest score in prediction vector (i.e. argmax).
-    '''
-    y_pred = np.moveaxis(y_pred, 1, 0)
-    y_true = np.moveaxis(y_true, 1, 0)
-
-    correct_pred = []
-    for ind in range(timesteps):
-        correct_pred.append(
-            tf.reduce_mean(tf.cast(tf.equal(tf.argmax(y_pred[ind], 1), tf.argmax(y_true[ind], 1)), tf.float32)).numpy())
-    '''
-
+    
     ytrue = np.array(y_true)
     pred = np.array(y_pred)
     pred = tf.argmax(pred, 1)
@@ -195,11 +163,7 @@ test_loss = cross_entropy_loss(test_pred, Y_test)
 test_acc  = accuracy(test_pred, Y_test)
 print("Test loss: %f, accuracy: %f" % (test_loss, np.max(test_acc)))
 
-
-
 # for graph Generation
-
-
 
 plt.plot(range(1,counter+1),np.array(graph_training))
 plt.locator_params(integer=True)
