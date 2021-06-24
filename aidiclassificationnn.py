@@ -8,9 +8,10 @@ import tensorflow as tf
 import numpy as np
 from keras.utils import np_utils
 
-# MNIST dataset parameters.
-num_classes = 6 # total classes (0-9 digits).
-num_features = 1000 # data features (img shape: 28*28).
+# Multiple Classes DNN eager execution implementation
+
+num_classes =  # number of classes 
+num_features = # number of feature
 
 # Training parameters.
 learning_rate = 0.01
@@ -18,21 +19,21 @@ epoch = 100
 batch_size = 32
 
 # Network parameters.
-n_hidden_1 = 64 # 1st layer number of neurons.
-n_hidden_2 = 128 # 2nd layer number of neurons.
+n_hidden_1 = # number of neuron in ist layer
+n_hidden_2 = # 2nd layer number of neurons.
 
 
-data        = np.load('/tmp/171.npz', allow_pickle=True)
+data        = np.load('name of the dataset file', allow_pickle=True)
 dataset  = data['a']
 ylabel   = data['b']
 
 
-
+# apply standard scaler transformation
 encoder = LabelEncoder()
 encoder.fit(ylabel)
 encoded_Y = encoder.transform(ylabel)
 
-# convert integers to dummy variables (i.e. one hot encoded)
+#  one hot encoded
 
 ylabel = np_utils.to_categorical(encoded_Y)
 ylabel = np.float32(ylabel)
@@ -47,16 +48,19 @@ dataset = scaler.transform(dataset)
 dataset = np.float32(dataset)
 
 
-
+# randomised the data set
 dataset,ylabel= shuffle(dataset,ylabel)
 
 import time
 start_time = time.time()
+
 X_train, X_test, Y_train, Y_test = train_test_split(dataset, ylabel, test_size=0.30, random_state=42)
 
 X_valid, X_test, Y_valid, Y_test = train_test_split(X_test, Y_test, test_size=0.50, random_state=42)
+
 display_step       = (len(X_train)/ batch_size)
 training_steps = int(display_step) * epoch
+
 train_data      = tf.data.Dataset.from_tensor_slices((X_train,Y_train))
 train_data      = train_data.repeat().batch(batch_size).prefetch(1)
 
@@ -74,8 +78,8 @@ biase  = {
         }
 
 
-
 # initilize layer with computation
+
 def NeuralNetwork(x):
 
     layerh1 = tf.add(tf.matmul(x,weight['h1']),biase['b1'])
@@ -86,6 +90,7 @@ def NeuralNetwork(x):
     out_layer = tf.nn.softmax(out_layer)
 
     return out_layer
+# cataogrical cross entropy use for more then one classes loss function 
 def crossentropy(ypred,ytrue):
     ypred = tf.clip_by_value(ypred, 1e-9, 1.)
     return tf.reduce_mean(-tf.reduce_sum(ytrue * tf.math.log(ypred)))
@@ -100,9 +105,8 @@ def run_optimization(x_batch,y_batch):
     learnvariable = list(weight.values()) + list(biase.values())
     grad          = tap.gradient(loss,learnvariable)
     optimizer.apply_gradients(zip(grad,learnvariable))
-0
 
-
+# calculate accuracy
 def accuracy(pred,ytrue):
     ytrue = np.array(ytrue)
     pred  = np.array(pred)
