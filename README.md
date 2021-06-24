@@ -1,6 +1,6 @@
 # Deep Learning architecture for signal processing with multiple classes TensorFlow 2.0 implementation
 
-The purpose of this repository to provide moslty adopted state-of-the-art deep learning architecture for signal processing. The deep learning architectures are given below:
+The purpose of this repository is to provide widely used state-of-the-art deep learning architecture for signal processing. The following are the deep learning architectures:
 
 1. Multi Layer fully connected Deep Neural Network file name DNN.py
 2. One dimensional Convolutional neural network file name oneDcnn.py
