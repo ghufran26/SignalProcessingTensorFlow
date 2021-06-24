@@ -50,20 +50,6 @@ X_train, X_test, Y_train, Y_test = train_test_split(dataset, ylabel, test_size=0
 
 X_valid, X_test, Y_valid, Y_test = train_test_split(X_test, Y_test, test_size=0.50, random_state=42)
 
-'''
-
-training_size = 2176
-testsize = 272
-valsize  = 272
-xtrain   = X_train.reshape(training_size,timesteps,feature_num)
-ytrain   = Y_train.reshape(training_size,timesteps,no_classes)
-xtest    = X_test.reshape(testsize,timesteps,feature_num)
-ytest    = Y_test.reshape(testsize,timesteps,no_classes)
-xval     = X_valid.reshape(valsize,timesteps,feature_num)
-yval     = Y_valid.reshape(valsize,timesteps,no_classes)
-epoch    = np.int(training_size/batch_size)
-
-'''
 X_train  = X_train.reshape(X_train.shape[0], feature_num, 1).astype('float32')
 X_valid  = X_valid.reshape(X_valid.shape[0], feature_num, 1).astype('float32')
 testX    = X_test.reshape(X_test.shape[0], feature_num, 1).astype('float32')
